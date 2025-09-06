@@ -1,4 +1,11 @@
-//Fatima Harrison
+//Fatima Harrison, CEN 3024C, September 5th 2025
+//SDLC Assignment Part 2
+//This is the development of a library management system (LMS) that will be taken place at locals libraries.
+//It's an upgrade for technology to be used in these libraries in order for an authorized user to store each patron's data to be stored paperless.
+//A file path is distributed for authorized user to have access to review details. The system provides functional features giving the user options to add, review, and remove a patron to keep in track of their current members.
+//The main method requires the patron class the carries the main objective for authorized users to add, remove, and review the
+//- list within the menu options. The objective is to successfully store in members of library using a upgraded version with technology and without using paper and
+//- to keep in track of their data.
 
 //Inserting imports
 import java.io.*;
@@ -6,8 +13,7 @@ import java.util.*;
 //Declaring main class for Library Management Systems
 public class LMS {
     //Class variables to be used throughout the programming
-    static class Patron {
-        public static String txt;
+    private static class Patron {
         String id; //Patron's details
         String name; //Patron's name
         String email;//Patron's email
@@ -29,38 +35,35 @@ public class LMS {
                     id, name, email, address, overdue);
         }
     }
-    //A function to load data from the given data file to the assigned role.
-    public static List<Patron> loadData(String PatronFile, String role) {
+    //A function to load data from the given data file path.
+    public static List<Patron> loadData(String PatronFile) {
+        //To list each Patron in a array list.
         List<Patron> patrons = new ArrayList<>();
-
-        // Role-based access control determine if the user role is false. 
-        if (!"User".equalsIgnoreCase(role)) {
-            System.out.println("Access denied: User only.");
-            return patrons;
-        }
-
         File file = new File(PatronFile);
+        //Give the user a message if the file has not been found.
         if (!file.exists()) {
-            System.out.println("File has not been found: " + Patron.txt);
+            System.out.println("File has not been found");
             return patrons;
         }
+        // BufferReader creates a buffered stream that wraps around a file stream
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.strip().split(",");
-                if (parts.length == 5) {
+                String[] parts = line.strip().split(","); //Identified in the spacing of a ','.
+                if (parts.length == 5) { //Length of array
+                    //Method to read each array in the given file path.
                     try {
+                        //Double method to read over the decimal
                         double overdue = Double.parseDouble(parts[4]);
-                        patrons.add(new Patron(parts[0], parts[1], parts[2], parts[3], overdue));
-                    } catch (NumberFormatException e) {
-                        System.out.println("⚠️ Skipping invalid overdue amount: " + parts[4]);
+                        patrons.add(new Patron(parts[0], parts[1], parts[2], parts[3], overdue)); //File reader format
+                    } catch (NumberFormatException e) { //A message if error occurs.
+                        System.out.println("Skipping invalid overdue amount!");
                     }
-                } else {
-                    System.out.println("⚠️ Skipping malformed line: " + line);
                 }
             }
+            //Gives message if an error occurs
         } catch (IOException e) {
-            System.out.println("Unable to read file: " + e.getMessage());
+            System.out.println("Unable to read file.");
         }
 
         return patrons;
@@ -78,25 +81,29 @@ public class LMS {
             }
         }
     }
-
+    //Validates a patron ID based on length and already not exist.
     public static boolean isValidId(String id, List<Patron> patrons) {
         if (id.length() != 7 || !id.matches("\\d{7}")) return false;
+        //Reject if it's not meet.
         for (Patron p : patrons) {
             if (p.id.equals(id)) return false;
         }
-        return true;
+        return true; //returns if both meets requirement.
     }
-
+    //Method to set the outstanding balance.
     public static double getValidOverdue(Scanner scanner) {
         while (true) {
             System.out.print("Enter overdue amount ($0 - $250): ");
             try {
+                //Method to determine if the inserted amount meets the requirements
                 double amount = Double.parseDouble(scanner.nextLine());
                 if (amount >= 0 && amount <= 250) {
-                    return amount;
+                    return amount; //Stored into the system
                 } else {
+                    //shared message if not
                     System.out.println("Amount must be between $0 and $250.");
                 }
+                //Catches exception if a letter or invalid character was entered.
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a number.");
             }
@@ -105,16 +112,17 @@ public class LMS {
         //Method function to create the ID for each added patron.
     public static void addPatron(List<Patron> patrons, Scanner scanner) {
         String id;
+        patrons = new ArrayList<>();
         //System functions to prompt and store data.
         while (true) {
             System.out.print("Enter 7-digit unique Patron ID: ");
             id = scanner.nextLine();
             if (isValidId(id, patrons)) break;
-            System.out.println("Invalid or duplicate ID.");
+            System.out.println("Invalid entry or duplicate ID.");
         }
         //Prompting the user to enter the patron's details
         System.out.print("Enter Patron Name: ");
-        String name = scanner.nextLine();
+        String name = scanner.nextLine();// Enter in new line
         System.out.print("Enter Patron Email: ");
         String email = scanner.nextLine();
         System.out.print("Enter Patron Address: ");
@@ -125,10 +133,11 @@ public class LMS {
         System.out.println("Patron added successfully✅");
         displayPatrons(patrons);
     }
-
+    //Method to remove a patron by prompting the patron's ID #.
     public static void removePatron(List<Patron> patrons, Scanner scanner) {
         System.out.print("Enter Patron ID to remove: ");
         String removeId = scanner.nextLine();
+        //Checks whether a given patron ID is valid
         boolean removed = patrons.removeIf(p -> p.id.equals(removeId));
         if (removed) {
             System.out.println(" Patron removed successfully.");
@@ -137,22 +146,23 @@ public class LMS {
         }
         displayPatrons(patrons);
     }
-
+    //Method for the patron to update their address.
     public static void updateAddress(List<Patron> patrons, Scanner scanner, String role) {
-        if (!role.equalsIgnoreCase("User")) {
+        if (!role.equalsIgnoreCase("Patron")) { //Only Patrons if not access denied.
             System.out.println("Access Denied🚫");
             return;
         }
-
-        System.out.print("Enter Patron Name and ID to update address: ");
+       //Prompting the patron to be verified based from their name and ID number.
+        System.out.print("Enter Patron Name: ");
         String name = scanner.nextLine();
+        System.out.print("Enter Patron ID: ");
         String id = scanner.nextLine();
-        for (Patron p : patrons) {
-            if (p.name.equals(name) || p.id.equals(id)) {
+        for (Patron p : patrons) { //If it's been matched
+            if (p.name.equals(name) || p.id.equals(id)) { //Prompting them to...
                 System.out.println("Current Address: " + p.address);
                 System.out.print("New address: ");
                 String newAddress = scanner.nextLine();
-
+                //Restricting an empty insert.
                 if (newAddress.isEmpty()) {
                     System.out.println("Address cannot be empty");
                     return;
@@ -162,8 +172,8 @@ public class LMS {
                 System.out.println("Address updated successfully ✅");
                 return;
             }
-        }
-        System.out.println("Patron not found.");
+        }//Error message if not found
+        System.out.println("Patron not found🚫");
     }
     //Allows the user to login in with username.
     public static String login(Scanner scanner) {
@@ -171,7 +181,7 @@ public class LMS {
         String role = scanner.nextLine().trim();//Scans into the system
         // If the person inputs a invalid entry, The system will redirect to guest mode.
         if (!role.equalsIgnoreCase("User") && !role.equalsIgnoreCase("Patron")) {
-            System.out.println(" Access Denied.");
+            System.out.println(" Access Denied🚫");
             role = "Guest";
         }
         //Given message of current login role.
@@ -183,19 +193,19 @@ public class LMS {
         Scanner scanner = new Scanner(System.in);
         String[] credentials = new String[]{login(scanner)};
         String role = credentials[0];
-        String filePath = scanner.nextLine();
+        String filePath = "E";
         List<Patron> patrons = loadData(filePath);
         //Prompting only the user to enter the data file path.
         if (role.equalsIgnoreCase("User")) {
-            System.out.print("📂 Enter the path to the patrons data file: ");
+            System.out.print("📂 Enter the file path: ");
             filePath = scanner.nextLine();
         } else {
             //For Patron or Guest, use a default path or skip loading
-            filePath = "Denied.txt"; // Random file path
-            System.out.println("\n Redirecting");
+            filePath = "Patron.txt"; //File path
+            System.out.println("\nYou have no access to a file🚫");
         }
-        patrons = loadData(filePath);
-        displayPatrons(patrons);
+        patrons = loadData(filePath); //Loads the data for patron within filepath
+        displayPatrons(patrons);//Playing the data on screen
 
         //A while loop to give each role a functional option.
         while (true) {
@@ -205,6 +215,7 @@ public class LMS {
                 System.out.println("1. Add New Patron");
                 System.out.println("2. Remove Patron");
                 System.out.println("3. Print All Patrons");
+                System.out.println("6. Exit");
             }//Section for Patron's users only
             if (role.equalsIgnoreCase("Patron")) {
                 System.out.println("\n**** Menu ****");
@@ -215,10 +226,10 @@ public class LMS {
                 System.out.println("\n**** Menu ****");
                 System.out.println("5. Exit");
             } else {
-                System.out.println("Exit");
+                System.out.println("*********************");
             }
             //Prompts the user to choose an option that will be scanned into the system.
-            System.out.print("Please choose an option**");
+            System.out.print("Please choose an option:");
             String choice = scanner.nextLine();
             //Using a switch expression function to be evaluated as cases.
             switch (choice) {
@@ -244,8 +255,13 @@ public class LMS {
                         System.out.println("System logged out");
                         return;
                     }
+                case "6": //Option to exit the options and successfully log out.
+                    if (role.equalsIgnoreCase("User" )){
+                        System.out.println("System logged out");
+                        return;
+                        }
                 default: //Message give if the user does not choose a valid option.
-                    System.out.println("**Please select an option**");
+                    System.out.println("**Option is required to continue**");
             }
         }
     }
