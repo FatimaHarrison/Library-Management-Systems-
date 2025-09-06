@@ -1,5 +1,5 @@
 //Fatima Harrison, CEN 3024C, September 5th 2025
-//SDLC Assignment Part 2
+//LMS SDLC Assignment Part 2
 //This is the development of a library management system (LMS) that will be taken place at locals libraries.
 //It's an upgrade for technology to be used in these libraries in order for an authorized user to store each patron's data to be stored paperless.
 //A file path is distributed for authorized user to have access to review details. The system provides functional features giving the user options to add, review, and remove a patron to keep in track of their current members.
@@ -266,3 +266,4 @@ public class LMS {
         }
     }
 }
+
